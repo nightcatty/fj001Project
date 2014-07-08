@@ -39,10 +39,27 @@ public class Wrapper_gjsairfj001 implements QunarCrawler {
 	}
 
 	@Override
-	public BookingResult getBookingInfo(FlightSearchParam arg0) {
+	public BookingResult getBookingInfo(FlightSearchParam param) {
 		BookingResult bookResult = new BookingResult();
 		BookingInfo bookInfo = new BookingInfo();
-		bookInfo.setAction("http://www.fijiairways.com/");
+		String[] depDataStrs = param.getDepDate().split("-");
+		String depYear = depDataStrs[0];
+		String depMonth = depDataStrs[1];
+		String depDay = depDataStrs[2];
+
+		String[] retDataStrs = param.getRetDate().split("-");
+		String retYear = retDataStrs[0];
+		String retMonth = retDataStrs[1];
+		String retDay = retDataStrs[2];
+
+		String getUrl = "http://booking.fijiairways.com/FJOnline/AirLowFareSearchExternal.do?validateAction=AirLowFareSearch&tripType=RT&searchType=FARE&cabinClass=Economy&pos=CONSUMER_FIJI&OSI=-INET+POS+CN&flexibleSearch=True&directFlightsOnly=False&redemption=False&guestTypes%5B0%5D.type=ADT&guestTypes%5B0%5D.amount=1&guestTypes%5B1%5D.type=CHD&guestTypes%5B1%5D.amount=0&guestTypes%5B2%5D.type=INF&guestTypes%5B2%5D.amount=0"
+				+ String.format(
+						"&outboundOption.originLocationCode=%s&outboundOption.destinationLocationCode=%s&outboundOption.departureDay=%s&outboundOption.departureMonth=%s&outboundOption.departureYear=%s&outboundOption.departureTime=NA"
+								+ "&inboundOption.departureDay=%s&inboundOption.departureMonth=%s&inboundOption.departureYear=%s",
+						param.getDep(), param.getArr(), depDay, depMonth,
+						depYear, retDay, retMonth, retYear);
+
+		bookInfo.setAction(getUrl);
 		bookInfo.setMethod("get");
 		bookResult.setData(bookInfo);
 		return bookResult;
@@ -247,7 +264,7 @@ public class Wrapper_gjsairfj001 implements QunarCrawler {
 				seg.setArrtime(arrive);
 				seg.setArrairport(airPorts[1]);
 				seg.setDepDate(param.getDepDate());
-//				seg.setArrDate(param.getDepDate());
+				seg.setArrDate(param.getDepDate());
 				seg.setCompany("ì³¼Ãº½¿Õ");
 				segs.add(seg);
 
@@ -281,8 +298,8 @@ public class Wrapper_gjsairfj001 implements QunarCrawler {
 					nextSeg.setDepairport(airPorts[0]);
 					nextSeg.setArrtime(connectArrive);
 					nextSeg.setArrairport(airPorts[1]);
-//					nextSeg.setDepDate(param.getDepDate());
-//					nextSeg.setArrDate(param.getDepDate());
+					nextSeg.setDepDate(param.getDepDate());
+					nextSeg.setArrDate(param.getDepDate());
 					nextSeg.setCompany("ì³¼Ãº½¿Õ");
 					segs.add(nextSeg);
 				}
