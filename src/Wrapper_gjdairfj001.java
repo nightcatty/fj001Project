@@ -25,9 +25,9 @@ import com.qunar.qfwrapper.util.QFPostMethod;
 public class Wrapper_gjdairfj001 implements QunarCrawler {
 	public static void main(String[] args) {
 		FlightSearchParam searchParam = new FlightSearchParam();
-		searchParam.setDep("SUV");
-		searchParam.setArr("SYD");
-		searchParam.setDepDate("2014-07-21");
+		searchParam.setDep("HKG");
+		searchParam.setArr("NAN");
+		searchParam.setDepDate("2014-07-13");
 		searchParam.setTimeOut("60000");
 		searchParam.setToken("");
 		Wrapper_gjdairfj001 wrapper = new Wrapper_gjdairfj001();
@@ -55,12 +55,12 @@ public class Wrapper_gjdairfj001 implements QunarCrawler {
 		String depYear = depDataStrs[0];
 		String depMonth = depDataStrs[1];
 		String depDay = depDataStrs[2];
-		String getUrl = "http://booking.fijiairways.com/FJOnline/AirLowFareSearchExternal.do?validateAction=AirLowFareSearch&tripType=OW&searchType=FARE&cabinClass=Economy&pos=CONSUMER_FIJI&OSI=-INET+POS+CN&flexibleSearch=True&directFlightsOnly=False&redemption=False&guestTypes%5B0%5D.type=ADT&guestTypes%5B0%5D.amount=1&guestTypes%5B1%5D.type=CHD&guestTypes%5B1%5D.amount=0&guestTypes%5B2%5D.type=INF&guestTypes%5B2%5D.amount=0&"
-				+ String.format(
-						"outboundOption.originLocationCode=%s&outboundOption.destinationLocationCode=%s&outboundOption.departureDay=%s&outboundOption.departureMonth=%s&outboundOption.departureYear=%s&outboundOption.departureTime=NA",
-						param.getDep(), param.getArr(), depDay, depMonth,
-						depYear);
-		
+//		String getUrl = "http://booking.fijiairways.com/FJOnline/AirLowFareSearchExternal.do?validateAction=AirLowFareSearch&tripType=OW&searchType=FARE&cabinClass=Economy&pos=CONSUMER_FIJI&OSI=-INET+POS+CN&flexibleSearch=True&directFlightsOnly=False&redemption=False&guestTypes%5B0%5D.type=ADT&guestTypes%5B0%5D.amount=1&guestTypes%5B1%5D.type=CHD&guestTypes%5B1%5D.amount=0&guestTypes%5B2%5D.type=INF&guestTypes%5B2%5D.amount=0&"
+//				+ String.format(
+//						"outboundOption.originLocationCode=%s&outboundOption.destinationLocationCode=%s&outboundOption.departureDay=%s&outboundOption.departureMonth=%s&outboundOption.departureYear=%s&outboundOption.departureTime=NA",
+//						param.getDep(), param.getArr(), depDay, depMonth,
+//						depYear);
+		String getUrl = "www.fijiairways.com";
 		bookInfo.setAction(getUrl);
 		bookInfo.setMethod("get");
 		bookResult.setData(bookInfo);

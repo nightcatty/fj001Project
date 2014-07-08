@@ -26,10 +26,10 @@ import com.qunar.qfwrapper.util.QFPostMethod;
 public class Wrapper_gjsairfj001 implements QunarCrawler {
 	public static void main(String[] args) {
 		FlightSearchParam searchParam = new FlightSearchParam();
-		searchParam.setDep("SUV");
+		searchParam.setDep("NYC");
 		searchParam.setArr("SYD");
-		searchParam.setDepDate("2014-08-01");
-		searchParam.setRetDate("2014-08-05");
+		searchParam.setDepDate("2014-08-14");
+		searchParam.setRetDate("2014-08-29");
 		searchParam.setTimeOut("60000");
 		searchParam.setToken("");
 		Wrapper_gjsairfj001 wrapper = new Wrapper_gjsairfj001();
@@ -52,12 +52,13 @@ public class Wrapper_gjsairfj001 implements QunarCrawler {
 		String retMonth = retDataStrs[1];
 		String retDay = retDataStrs[2];
 
-		String getUrl = "http://booking.fijiairways.com/FJOnline/AirLowFareSearchExternal.do?validateAction=AirLowFareSearch&tripType=RT&searchType=FARE&cabinClass=Economy&pos=CONSUMER_FIJI&OSI=-INET+POS+CN&flexibleSearch=True&directFlightsOnly=False&redemption=False&guestTypes%5B0%5D.type=ADT&guestTypes%5B0%5D.amount=1&guestTypes%5B1%5D.type=CHD&guestTypes%5B1%5D.amount=0&guestTypes%5B2%5D.type=INF&guestTypes%5B2%5D.amount=0"
-				+ String.format(
-						"&outboundOption.originLocationCode=%s&outboundOption.destinationLocationCode=%s&outboundOption.departureDay=%s&outboundOption.departureMonth=%s&outboundOption.departureYear=%s&outboundOption.departureTime=NA"
-								+ "&inboundOption.departureDay=%s&inboundOption.departureMonth=%s&inboundOption.departureYear=%s",
-						param.getDep(), param.getArr(), depDay, depMonth,
-						depYear, retDay, retMonth, retYear);
+		String getUrl = "www.fijiairways.com";
+//				"http://booking.fijiairways.com/FJOnline/AirLowFareSearchExternal.do?validateAction=AirLowFareSearch&tripType=RT&searchType=FARE&cabinClass=Economy&pos=CONSUMER_FIJI&OSI=-INET+POS+CN&flexibleSearch=True&directFlightsOnly=False&redemption=False&guestTypes%5B0%5D.type=ADT&guestTypes%5B0%5D.amount=1&guestTypes%5B1%5D.type=CHD&guestTypes%5B1%5D.amount=0&guestTypes%5B2%5D.type=INF&guestTypes%5B2%5D.amount=0"
+//				+ String.format(
+//						"&outboundOption.originLocationCode=%s&outboundOption.destinationLocationCode=%s&outboundOption.departureDay=%s&outboundOption.departureMonth=%s&outboundOption.departureYear=%s&outboundOption.departureTime=NA"
+//								+ "&inboundOption.departureDay=%s&inboundOption.departureMonth=%s&inboundOption.departureYear=%s",
+//						param.getDep(), param.getArr(), depDay, depMonth,
+//						depYear, retDay, retMonth, retYear);
 
 		bookInfo.setAction(getUrl);
 		bookInfo.setMethod("get");
@@ -159,11 +160,22 @@ public class Wrapper_gjsairfj001 implements QunarCrawler {
 				String goTableStr = StringUtils.substringBetween(html,
 						"<div id=\"resultsFFBlock1\" class=\"resultsArea\">",
 						"<div class=\"footnote\">");
+				if(StringUtils.isEmpty(goTableStr)){
+					goTableStr = StringUtils.substringBetween(html,
+							"<div id=\"resultsFFBlock1\" class=\"resultsArea\">",
+							"<div class=\"footerBlock\">");
+				}
+				
 				List<OneWayFlightInfo> goFlight = getFilghtList(goTableStr,
 						param);
 				String backTableStr = StringUtils.substringBetween(html,
 						"<div id=\"resultsFFBlock2\" class=\"resultsArea\">",
 						"<div class=\"footnote\">");
+				if(StringUtils.isEmpty(backTableStr)){
+					backTableStr = StringUtils.substringBetween(html,
+							"<div id=\"resultsFFBlock2\" class=\"resultsArea\">",
+							"<div class=\"footerBlock\">");
+				}
 				List<OneWayFlightInfo> backFlight = getFilghtList(backTableStr,
 						param);
 
