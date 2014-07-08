@@ -26,10 +26,10 @@ import com.qunar.qfwrapper.util.QFPostMethod;
 public class Wrapper_gjsairfj001 implements QunarCrawler {
 	public static void main(String[] args) {
 		FlightSearchParam searchParam = new FlightSearchParam();
-		searchParam.setDep("NYC");
+		searchParam.setDep("SUV");
 		searchParam.setArr("SYD");
-		searchParam.setDepDate("2014-08-14");
-		searchParam.setRetDate("2014-08-29");
+		searchParam.setDepDate("2014-08-01");
+		searchParam.setRetDate("2014-08-05");
 		searchParam.setTimeOut("60000");
 		searchParam.setToken("");
 		Wrapper_gjsairfj001 wrapper = new Wrapper_gjsairfj001();
@@ -167,7 +167,7 @@ public class Wrapper_gjsairfj001 implements QunarCrawler {
 				}
 				
 				List<OneWayFlightInfo> goFlight = getFilghtList(goTableStr,
-						param);
+						param,param.getDepDate());
 				String backTableStr = StringUtils.substringBetween(html,
 						"<div id=\"resultsFFBlock2\" class=\"resultsArea\">",
 						"<div class=\"footnote\">");
@@ -177,7 +177,7 @@ public class Wrapper_gjsairfj001 implements QunarCrawler {
 							"<div class=\"footerBlock\">");
 				}
 				List<OneWayFlightInfo> backFlight = getFilghtList(backTableStr,
-						param);
+						param,param.getRetDate());
 
 				// 两层循环，对去程和返程list做笛卡尔积得到组合后的所有往返航程
 				for (OneWayFlightInfo obfl : goFlight) {
@@ -223,7 +223,7 @@ public class Wrapper_gjsairfj001 implements QunarCrawler {
 	}
 
 	private List<OneWayFlightInfo> getFilghtList(String tableHtml,
-			FlightSearchParam param) throws ParseException {
+			FlightSearchParam param,String date) throws ParseException {
 		String tbodyStr = StringUtils.substringBetween(tableHtml, "<tbody>",
 				"</tbody>");
 		List<OneWayFlightInfo> flightList = new ArrayList<OneWayFlightInfo>();
@@ -248,10 +248,10 @@ public class Wrapper_gjsairfj001 implements QunarCrawler {
 				flightDetail.setArrcity(param.getArr());
 				flightDetail.setDepcity(param.getDep());
 				SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-				Date date = null;
+				Date date1 = null;
 
-				date = format.parse(param.getDepDate());
-				flightDetail.setDepdate(date);
+				date1 = format.parse(param.getDepDate());
+				flightDetail.setDepdate(date1);
 				flightDetail.setFlightno(flightNoList);
 				flightDetail.setPrice(price);
 
@@ -275,8 +275,10 @@ public class Wrapper_gjsairfj001 implements QunarCrawler {
 				seg.setDepairport(airPorts[0]);
 				seg.setArrtime(arrive);
 				seg.setArrairport(airPorts[1]);
-				seg.setDepDate(param.getDepDate());
-				seg.setArrDate(param.getDepDate());
+//				seg.setDepDate(param.getDepDate());
+//				seg.setArrDate(param.getDepDate());
+				seg.setDepDate(date);
+				seg.setArrDate(date);
 				seg.setCompany("斐济航空");
 				segs.add(seg);
 
@@ -310,8 +312,10 @@ public class Wrapper_gjsairfj001 implements QunarCrawler {
 					nextSeg.setDepairport(airPorts[0]);
 					nextSeg.setArrtime(connectArrive);
 					nextSeg.setArrairport(airPorts[1]);
-					nextSeg.setDepDate(param.getDepDate());
-					nextSeg.setArrDate(param.getDepDate());
+//					nextSeg.setDepDate(param.getDepDate());
+//					nextSeg.setArrDate(param.getDepDate());
+					nextSeg.setDepDate(date);
+					nextSeg.setArrDate(date);
 					nextSeg.setCompany("斐济航空");
 					segs.add(nextSeg);
 				}
