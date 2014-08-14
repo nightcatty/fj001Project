@@ -1,4 +1,3 @@
-
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -26,10 +25,10 @@ import com.qunar.qfwrapper.util.QFPostMethod;
 public class Wrapper_gjsairfj001 implements QunarCrawler {
 	public static void main(String[] args) {
 		FlightSearchParam searchParam = new FlightSearchParam();
-		searchParam.setDep("SUV");
-		searchParam.setArr("SYD");
-		searchParam.setDepDate("2014-08-01");
-		searchParam.setRetDate("2014-08-05");
+		searchParam.setDep("HKG");
+		searchParam.setArr("NAN");
+		searchParam.setDepDate("2014-08-22");
+		searchParam.setRetDate("2014-09-01");
 		searchParam.setTimeOut("60000");
 		searchParam.setToken("");
 		Wrapper_gjsairfj001 wrapper = new Wrapper_gjsairfj001();
@@ -53,12 +52,13 @@ public class Wrapper_gjsairfj001 implements QunarCrawler {
 		String retDay = retDataStrs[2];
 
 		String getUrl = "www.fijiairways.com";
-//				"http://booking.fijiairways.com/FJOnline/AirLowFareSearchExternal.do?validateAction=AirLowFareSearch&tripType=RT&searchType=FARE&cabinClass=Economy&pos=CONSUMER_FIJI&OSI=-INET+POS+CN&flexibleSearch=True&directFlightsOnly=False&redemption=False&guestTypes%5B0%5D.type=ADT&guestTypes%5B0%5D.amount=1&guestTypes%5B1%5D.type=CHD&guestTypes%5B1%5D.amount=0&guestTypes%5B2%5D.type=INF&guestTypes%5B2%5D.amount=0"
-//				+ String.format(
-//						"&outboundOption.originLocationCode=%s&outboundOption.destinationLocationCode=%s&outboundOption.departureDay=%s&outboundOption.departureMonth=%s&outboundOption.departureYear=%s&outboundOption.departureTime=NA"
-//								+ "&inboundOption.departureDay=%s&inboundOption.departureMonth=%s&inboundOption.departureYear=%s",
-//						param.getDep(), param.getArr(), depDay, depMonth,
-//						depYear, retDay, retMonth, retYear);
+		// "http://booking.fijiairways.com/FJOnline/AirLowFareSearchExternal.do?validateAction=AirLowFareSearch&tripType=RT&searchType=FARE&cabinClass=Economy&pos=CONSUMER_FIJI&OSI=-INET+POS+CN&flexibleSearch=True&directFlightsOnly=False&redemption=False&guestTypes%5B0%5D.type=ADT&guestTypes%5B0%5D.amount=1&guestTypes%5B1%5D.type=CHD&guestTypes%5B1%5D.amount=0&guestTypes%5B2%5D.type=INF&guestTypes%5B2%5D.amount=0"
+		// + String.format(
+		// "&outboundOption.originLocationCode=%s&outboundOption.destinationLocationCode=%s&outboundOption.departureDay=%s&outboundOption.departureMonth=%s&outboundOption.departureYear=%s&outboundOption.departureTime=NA"
+		// +
+		// "&inboundOption.departureDay=%s&inboundOption.departureMonth=%s&inboundOption.departureYear=%s",
+		// param.getDep(), param.getArr(), depDay, depMonth,
+		// depYear, retDay, retMonth, retYear);
 
 		bookInfo.setAction(getUrl);
 		bookInfo.setMethod("get");
@@ -92,7 +92,10 @@ public class Wrapper_gjsairfj001 implements QunarCrawler {
 			firstGet = new QFGetMethod(getUrl);
 			int status = httpClient.executeMethod(firstGet);
 			String firstGetHtml = firstGet.getResponseBodyAsString();
-
+			if(firstGetHtml.indexOf("errorCode=INVALID_SEARCH_CRITERIA") > 0){
+				return firstGetHtml;
+			}
+			
 			String jsessionid = firstGetHtml.substring(
 					firstGetHtml.indexOf("jsessionid=") + 11,
 					firstGetHtml.indexOf("jsessionid=") + 43);
@@ -103,24 +106,13 @@ public class Wrapper_gjsairfj001 implements QunarCrawler {
 			post.setRequestBody(names);
 			post.setRequestHeader("Referer", getUrl);
 			post.getParams().setContentCharset("UTF-8");
-			// String cookie =
-			// StringUtils.join(httpClient.getState().getCookies(),";");
-			// httpClient.getState().clearCookies();
-			// firstGet.addRequestHeader("Cookie",cookie);
 			httpClient.executeMethod(post);
 
 			String postHtml = post.getResponseBodyAsString();
 			if (postHtml.indexOf("success") > 0) {
-				// String secondJsessionid =
-				// postHtml.substring(postHtml.indexOf("jsessionid=")+11,
-				// postHtml.indexOf("jsessionid=")+43);
 				String secondGetUrl = "http://booking.fijiairways.com/FJOnline/AirFareFamiliesFlexibleForward.do";
 				secondGet = new QFGetMethod(secondGetUrl);
 
-				// cookie =
-				// StringUtils.join(httpClient.getState().getCookies(),";");
-				// // httpClient.getState().clearCookies();
-				// secondGet.addRequestHeader("Cookie",cookie);
 				httpClient.executeMethod(secondGet);
 				String secondGetHtml = secondGet.getResponseBodyAsString();
 				return secondGetHtml;
@@ -160,24 +152,28 @@ public class Wrapper_gjsairfj001 implements QunarCrawler {
 				String goTableStr = StringUtils.substringBetween(html,
 						"<div id=\"resultsFFBlock1\" class=\"resultsArea\">",
 						"<div class=\"footnote\">");
-				if(StringUtils.isEmpty(goTableStr)){
-					goTableStr = StringUtils.substringBetween(html,
-							"<div id=\"resultsFFBlock1\" class=\"resultsArea\">",
-							"<div class=\"footerBlock\">");
+				if (StringUtils.isEmpty(goTableStr)) {
+					goTableStr = StringUtils
+							.substringBetween(
+									html,
+									"<div id=\"resultsFFBlock1\" class=\"resultsArea\">",
+									"<div class=\"footerBlock\">");
 				}
-				
+
 				List<OneWayFlightInfo> goFlight = getFilghtList(goTableStr,
-						param,param.getDepDate());
+						param, param.getDepDate());
 				String backTableStr = StringUtils.substringBetween(html,
 						"<div id=\"resultsFFBlock2\" class=\"resultsArea\">",
 						"<div class=\"footnote\">");
-				if(StringUtils.isEmpty(backTableStr)){
-					backTableStr = StringUtils.substringBetween(html,
-							"<div id=\"resultsFFBlock2\" class=\"resultsArea\">",
-							"<div class=\"footerBlock\">");
+				if (StringUtils.isEmpty(backTableStr)) {
+					backTableStr = StringUtils
+							.substringBetween(
+									html,
+									"<div id=\"resultsFFBlock2\" class=\"resultsArea\">",
+									"<div class=\"footerBlock\">");
 				}
 				List<OneWayFlightInfo> backFlight = getFilghtList(backTableStr,
-						param,param.getRetDate());
+						param, param.getRetDate());
 
 				// 两层循环，对去程和返程list做笛卡尔积得到组合后的所有往返航程
 				for (OneWayFlightInfo obfl : goFlight) {
@@ -186,12 +182,10 @@ public class Wrapper_gjsairfj001 implements QunarCrawler {
 						round.setInfo(obfl.getInfo());// 去程航段信息
 						round.setOutboundPrice(obfl.getDetail().getPrice());// 去程价格
 						round.setReturnedPrice(rtfl.getDetail().getPrice());// 返程价格
-						FlightDetail detail = new FlightDetail();
-						detail = obfl.getDetail();
+						FlightDetail detail = cloneFlightDetail(obfl
+								.getDetail());
 						detail.setPrice(sum(obfl.getDetail().getPrice(), rtfl
 								.getDetail().getPrice()));// 往返总价格
-						// detail.setPrice(obfl.getDetail().getPrice()+rtfl.getDetail().getPrice());//往返总价格
-						// detail.setTax(obfl.getDetail().getTax()+rtfl.getDetail().getTax());//往返总税费
 						detail.setTax(sum(obfl.getDetail().getTax(), rtfl
 								.getDetail().getTax()));
 						round.setDetail(detail); // 将设置后的去程信息装入往返中
@@ -223,7 +217,7 @@ public class Wrapper_gjsairfj001 implements QunarCrawler {
 	}
 
 	private List<OneWayFlightInfo> getFilghtList(String tableHtml,
-			FlightSearchParam param,String date) throws ParseException {
+			FlightSearchParam param, String date) throws ParseException {
 		String tbodyStr = StringUtils.substringBetween(tableHtml, "<tbody>",
 				"</tbody>");
 		List<OneWayFlightInfo> flightList = new ArrayList<OneWayFlightInfo>();
@@ -275,8 +269,8 @@ public class Wrapper_gjsairfj001 implements QunarCrawler {
 				seg.setDepairport(airPorts[0]);
 				seg.setArrtime(arrive);
 				seg.setArrairport(airPorts[1]);
-//				seg.setDepDate(param.getDepDate());
-//				seg.setArrDate(param.getDepDate());
+				// seg.setDepDate(param.getDepDate());
+				// seg.setArrDate(param.getDepDate());
 				seg.setDepDate(date);
 				seg.setArrDate(date);
 				seg.setCompany("斐济航空");
@@ -312,8 +306,8 @@ public class Wrapper_gjsairfj001 implements QunarCrawler {
 					nextSeg.setDepairport(airPorts[0]);
 					nextSeg.setArrtime(connectArrive);
 					nextSeg.setArrairport(airPorts[1]);
-//					nextSeg.setDepDate(param.getDepDate());
-//					nextSeg.setArrDate(param.getDepDate());
+					// nextSeg.setDepDate(param.getDepDate());
+					// nextSeg.setArrDate(param.getDepDate());
 					nextSeg.setDepDate(date);
 					nextSeg.setArrDate(date);
 					nextSeg.setCompany("斐济航空");
@@ -347,23 +341,20 @@ public class Wrapper_gjsairfj001 implements QunarCrawler {
 		return price;
 	}
 
-	private String getArriveDate(String depTime, String duration) {
-		String[] depTimes = depTime.split(":");
-		String durationH = duration.substring(0, duration.indexOf('h'));
-		String durationM = duration.substring(duration.indexOf('h') + 1,
-				duration.indexOf('m'));
-		int depH = Integer.parseInt(depTimes[0]);
-		int depM = Integer.parseInt(depTimes[1]);
-		int durH = Integer.parseInt(durationH);
-		int durM = Integer.parseInt(durationM);
-
-		int resultH = depH + durH;
-		int resultM = depM + durM;
-		if (resultM >= 60) {
-			resultH++;
-			resultM -= 60;
-		}
-		return resultH + ":" + resultM;
+	private FlightDetail cloneFlightDetail(FlightDetail sDetail) {
+		FlightDetail detail = new FlightDetail();
+		detail.setArrcity(sDetail.getArrcity());
+		detail.setCreatetime(sDetail.getCreatetime());
+		detail.setDepcity(sDetail.getDepcity());
+		detail.setDepdate(sDetail.getDepdate());
+		detail.setFlightno(sDetail.getFlightno());
+		detail.setMonetaryunit(sDetail.getMonetaryunit());
+		detail.setPrice(sDetail.getPrice());
+		detail.setSource(sDetail.getSource());
+		detail.setStatus(sDetail.getStatus());
+		detail.setTax(sDetail.getTax());
+		detail.setUpdatetime(sDetail.getUpdatetime());
+		detail.setWrapperid(sDetail.getWrapperid());
+		return detail;
 	}
-
 }

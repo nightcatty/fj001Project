@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+//import mkpub.MKUtil;
+
 import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.lang.StringUtils;
 
@@ -27,7 +29,7 @@ public class Wrapper_gjdairfj001 implements QunarCrawler {
 		FlightSearchParam searchParam = new FlightSearchParam();
 		searchParam.setDep("HKG");
 		searchParam.setArr("NAN");
-		searchParam.setDepDate("2014-07-13");
+		searchParam.setDepDate("2014-08-23");
 		searchParam.setTimeOut("60000");
 		searchParam.setToken("");
 		Wrapper_gjdairfj001 wrapper = new Wrapper_gjdairfj001();
@@ -86,7 +88,9 @@ public class Wrapper_gjdairfj001 implements QunarCrawler {
 			firstGet = new QFGetMethod(getUrl);
 			int status = httpClient.executeMethod(firstGet);
 			String firstGetHtml = firstGet.getResponseBodyAsString();
-
+			if(firstGetHtml.indexOf("errorCode=INVALID_SEARCH_CRITERIA") > 0){
+				return firstGetHtml;
+			}
 			String jsessionid = firstGetHtml.substring(
 					firstGetHtml.indexOf("jsessionid=") + 11,
 					firstGetHtml.indexOf("jsessionid=") + 43);
@@ -135,7 +139,7 @@ public class Wrapper_gjdairfj001 implements QunarCrawler {
 			return result;
 		}
 
-		else if (html.contains("No Flights Found")) {
+		else if (html.contains("No Flights Found")|| html.contains("There are no flights available on your selected date(s), please choose other dates to continue.") ) {
 			result.setRet(false);
 			result.setStatus(Constants.NO_RESULT);
 			return result;
@@ -145,6 +149,7 @@ public class Wrapper_gjdairfj001 implements QunarCrawler {
 				String tableStr = StringUtils.substringBetween(html,
 						"<div id=\"resultsFFBlock1\" class=\"resultsArea\">",
 						"<div class=\"footnote\">");
+	//			MKUtil.writeStringToFile("111.html", html);
 				String tbodyStr = StringUtils.substringBetween(tableStr,
 						"<tbody>", "</tbody>");
 				List<OneWayFlightInfo> flightList = new ArrayList<OneWayFlightInfo>();
